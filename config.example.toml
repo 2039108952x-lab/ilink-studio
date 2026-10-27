@@ -1,0 +1,88 @@
+# iLink 网关配置样例。复制成 config.toml 再改。
+# 密钥一律只写环境变量名，真实值放 .env 或系统环境，不进这个文件。
+
+[brain]
+backend = "cli"            # cli | http | acp
+command = ""               # 首启向导选择本机 Reasonix 可执行文件；空 = AI 未就绪
+model = ""                 # 空 = 使用所选后端的默认模型
+workspace = "im-workspace"      # 相对应用数据目录；不开放整个项目或凭据目录
+timeout = 240.0            # 单条消息最长等多久（秒）
+permission_mode = "auto"
+max_steps = 25
+keep_session = true        # 带上此对话最近几轮，上下文才连续
+# 表情包目录：文件名（去扩展名）就是语义标签，模型按名字引用；留空则不启用
+sticker_dir = ""           # 例如 "D:/stickers"；不要填项目目录里的临时文件夹
+
+[server]
+host = "127.0.0.1"         # 红线：不许改成 0.0.0.0
+port = 8787
+token_env = "ILINK_GATEWAY_TOKEN"
+
+# ---- 平台开关 ----
+# 每个平台要么走官方通道（零风险），要么走本地自动化（有风控）。
+# QQ:     official = 官方机器人开放平台 app_id/secret
+#         onebot   = 本地 NapCat 协议端
+# 微信:   official = 微信官方 ilinkai 接口
+#         wxauto   = Windows 客户端 UI 自动化
+[platforms.qq]
+enabled = false
+mode = "official"          # official | onebot
+app_id = ""
+app_secret_env = "QQ_BOT_APP_SECRET"
+onebot_ws = "ws://127.0.0.1:3001"   # mode=onebot 时用
+
+[platforms.wechat]
+enabled = false
+mode = "official"          # official = 官方 iLink（推荐）| wxauto = UI 自动化，只认微信 3.9.x
+token_env = "WEIXIN_BOT_TOKEN"      # 可选；不设就读 scripts/wx_login.py 写的 data/wx-bot.json
+api_base = "https://ilinkai.weixin.qq.com"
+skip_backlog = true        # 首次启动不把登录前的历史消息一次性喂给模型
+
+[platforms.bilibili]
+enabled = false
+watch_private = true       # 收私信
+watch_comment = true       # 收 @我的 和 收到的评论回复
+notify_interval = 45.0     # @/回复轮询间隔（秒）。B站这类通知没有推送，只能拉，别调小于 30
+                           # 凭据不是写在这里，是四个环境变量：见 README「B站」一节
+
+# ---- 刷B站（内容雷达）----
+radar = true               # 在本区挂出「刷B站」；false = 只当聊天通道用
+keywords = []              # 留空 = 刷首页推荐流。故意不用内置词表：否则所有装了同一份的人
+                           # 会刷到同一批视频，评论区堆成「同款互相报到」
+per_day = 5                # 每天最多挑几条；0 = 只手动跑
+dm_mode = "only"           # off = 只发公开评论 | only = 只发私信（默认）| both = 两边都发
+dm_uid = ""                # 私信发给谁；留空 = 当前登录的那个号自己
+comment_auto = false       # 自动评论并 @ 你（默认关：这是拿你的号在别人视频下说话）
+comment_per_round = 1      # 每轮最多发几条评论（上限 20）
+reply_auto = false         # 回复评论（默认关，只回直接回复到它那条下面的人）
+report_style = "full"      # full = 完整 | thin = 薄版 | none = 不写日报（判重表照写）
+transcribe = false         # 本地转写没字幕的视频：要先单独装（约 1GB），下载不进安装包
+persona = ""               # 人设提示词；留空 = 用工作区 AGENTS.md，再没有就中性
+mcp_timeout = 120          # 单次工具调用超时（秒）
+python = ""                # 留空 = 自动找（家目录 .venv → PATH → 网关自己的解释器）
+
+[platforms.douyin]
+enabled = false
+mode = "mcp"                    # 走 dsh-douyin-scroll 的 MCP 后端（不再用浏览器读 DOM）
+home_dir = ""                   # 留空 = <数据目录>/douyin-home：Cookie、记忆、报告都在这
+node_path = ""                  # 留空 = PATH 里的 node（要求 >= 22）
+poll_interval = 30              # 几秒轮一次私信与 @
+max_conversations = 5           # 每轮最多读几个会话
+message_limit = 30              # 每个会话读最近多少条
+discover_conversations = true   # 自动发现会话（MCP 没暴露 list，靠 im_read 的 candidates）
+mcp_timeout = 120               # 单次工具调用超时（秒）
+# 想固定联系人就不靠自动发现：to 是昵称，to_id 是 sec_uid，可只填一个
+# conversations = [{ to = "demo_friend", to_id = "" }]
+
+[allowlist]
+allow_all = false          # 千万别随手开成 true
+qq = []                    # 填你自己的 QQ 号，只有你说话我才会理
+wechat = []
+bilibili = []
+douyin = []
+
+[privacy]
+# 白名单外的人发来的消息，默认只留审计元数据、正文不落库。
+# 打开后正文会存在本机（收件箱能看见对方说了什么），但仍然不会自动回复 ——
+# 自动回复的开关始终是上面那个白名单。只有昵称、没有稳定 ID 的消息永远不存正文。
+record_all_bodies = false

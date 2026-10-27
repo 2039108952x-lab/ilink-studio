@@ -1,0 +1,94 @@
+{
+  "name": "ilink-studio",
+  "version": "0.1.0-rc1",
+  "private": true,
+  "main": "desktop/main.cjs",
+  "description": "iLink Studio 本机多平台聊天控制台",
+  "author": "iLink Studio contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/2039108952x-lab/ilink-studio.git"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n web,desktop \"npm:dev:web\" \"npm:dev:desktop\"",
+    "dev:web": "vite --host 127.0.0.1",
+    "dev:desktop": "node desktop/scripts/dev.cjs",
+    "build:web": "vite build",
+    "start": "electron .",
+    "test": "node --test desktop/test/*.test.cjs",
+    "typecheck": "tsc --noEmit",
+    "test:python": "python -m unittest discover -s tests -t .",
+    "package": "npm run build:web && npm run build:gateway && electron-builder --dir",
+    "stage:browser": "python scripts/stage_browser.py",
+    "build:gateway": "python scripts/stage_browser.py && python scripts/build_gateway.py"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.2",
+    "concurrently": "^9.2.1",
+    "electron": "^38.2.1",
+    "electron-builder": "^26.0.12",
+    "preact": "^10.27.2",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.7"
+  },
+  "build": {
+    "appId": "studio.ilink.desktop",
+    "productName": "iLink Studio",
+    "asar": true,
+    "asarUnpack": ["desktop/preload.cjs"],
+    "files": [
+      "desktop/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "web/dist",
+        "to": "web/dist"
+      },
+      {
+        "from": "dist/gateway",
+        "to": "gateway",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "vendor/ms-playwright",
+        "to": "playwright",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "vendor/dsh-bili-scroll",
+        "to": "vendor/dsh-bili-scroll",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "vendor/dsh-douyin-scroll",
+        "to": "douyin-mcp",
+        "filter": [
+          "**/*",
+          "!**/.git/**",
+          "!**/node_modules/**",
+          "!**/__pycache__/**"
+        ]
+      },
+      {
+        "from": "docs/ACCEPTANCE.md",
+        "to": "docs/ACCEPTANCE.md"
+      }
+    ],
+    "win": {
+      "target": [
+        "dir"
+      ]
+    },
+    "directories": {
+      "output": "release"
+    }
+  }
+}

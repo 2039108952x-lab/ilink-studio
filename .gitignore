@@ -1,0 +1,47 @@
+# 运行时数据与日志（可能含真实聊天正文、凭据库、平台 profile）
+data/
+logs/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.log
+
+# 本机配置（含账号、本机绝对路径与凭据变量名）
+config.toml
+.env
+.env.*
+
+# 打包与构建产物
+node_modules/
+vendor/
+web/dist/
+dist/
+build/
+release/
+release*/
+*.tsbuildinfo
+*.asar
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# 工具与会话残留
+.reasonix/
+.scratch/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini

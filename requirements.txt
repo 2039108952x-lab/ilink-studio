@@ -1,0 +1,9 @@
+# Windows 11 x64 · 开发与 PyInstaller 构建的顶层依赖（版本已锁定）
+playwright==1.64.1
+bilibili-api-python==17.4.2
+httpx>=0.28,<1
+websockets>=15,<16
+Pillow==12.3.0
+qrcode>=8,<9
+# 仅构建时需要；目标机不安装 Python
+PyInstaller==6.20.0
